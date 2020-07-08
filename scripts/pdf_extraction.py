@@ -69,13 +69,15 @@ def pdf_extraction_call(pdf_filepath, client, config):
             doc_extract = client.call(RetrieveStorageObject(job.result))
         except Exception as e:
             print(e)
+            print(job.result)
+            return None
     return doc_extract
 
 
 @main.command("extract")
 @click.argument("src_dir", type=click_pathlib.Path(exists=True))
 @click.argument("dst_folder")
-def pdf_extraction_driver(src, dst_folder):
+def pdf_extraction_driver(src_dir, dst_folder):
     """
     Given a filepath, run Indico document extraction and save json output to
     dst_folder witht the same name as the src_doc
@@ -89,17 +91,20 @@ def pdf_extraction_driver(src, dst_folder):
 
     """
     # if src is directory, iterate through all pdf files
-    if os.path.isdir(src):
-        pdf_paths = files_from_directory(src)
+    if os.path.isdir(src_dir):
+        pdf_paths = files_from_directory(src_dir)
         for pdf_path in tqdm(pdf_paths):
             pdf_extraction = pdf_extraction_call(
                 pdf_path, PROD_CLIENT, detailed_pdf_extraction_config
             )
-            _ = save_extraction(pdf_extraction, pdf_path, dst_folder)
+            if pdf_extraction:
+                _ = save_extraction(pdf_extraction, pdf_path, dst_folder)
+            else:
+                continue
     # otherwise pass single file
     else:
         pdf_extraction = pdf_extraction_call(
-            src, PROD_CLIENT, detailed_pdf_extraction_config
+            src_dir, PROD_CLIENT, detailed_pdf_extraction_config
         )
         _ = save_extraction(pdf_extraction, pdf_path, dst_folder)
 
