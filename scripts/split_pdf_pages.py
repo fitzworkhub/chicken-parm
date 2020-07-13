@@ -7,16 +7,20 @@ This script performs the following steps:
 
 1) Get a list of all pdf paths
 2) split pdfs into single pages
+3) If pdfs are greater than N pages, take only 3 pages
 """
 from poctoolkit import pdf_utils, folder_utils
 import click
 import click_pathlib
 
 
+MAX_PAGES = 3
+
+
 def split_pdfs(pdf_folder, output_folder):
     pdf_filepaths = folder_utils.files_from_directory(pdf_folder, "*.pdf")
     for pdf_filepath in pdf_filepaths:
-        pdf_utils.split_pdf_pages(pdf_filepath, output_folder)
+        pdf_utils.split_pdf_pages(pdf_filepath, output_folder, max_pages=MAX_PAGES)
 
 
 @click.command()
