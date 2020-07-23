@@ -32,7 +32,8 @@ def extraction_driver(pdf_text_dir, demo_dir, batch_size=10):
     for batch_start in tqdm(range(0, len(samples), batch_size)):
         batch_end = batch_start + batch_size
         batch_samples = samples[batch_start:batch_end]
-        prediction_dicts.extend(predict(batch_samples, SELECTED_MODEL_ID))
+        predictions = predict(batch_samples, SELECTED_MODEL_ID, indico_config.PROD_CLIENT)
+        prediction_dicts.extend(predictions)
 
     for prediction, filepath in zip(prediction_dicts, pdf_text_paths):
         filename = os.path.basename(filepath)
