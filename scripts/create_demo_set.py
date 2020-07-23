@@ -7,6 +7,8 @@ test/training inds from cyclone export
 
 return filenames where row index belongs to [test_inds, unlabeled_inds]
 where unlabeled_inds = row_inds - test_inds - training_inds
+
+move the these files to the demo folder
 """
 from indico.queries.export import CreateExport, DownloadExport
 from indico.queries import JobStatus, RetrieveStorageObject
@@ -16,6 +18,7 @@ import pandas as pd
 import os
 import ast
 import shutil
+from poctoolkit.folder_utils import check_folder
 
 
 def get_indices(csv_filepath):
@@ -26,7 +29,7 @@ def get_indices(csv_filepath):
 
 DATASET_ID = 6911
 LABELSET_ID = 18140
-
+MODEL_FOLDER = 'total_tax_model'
 """
 CreateExport is borken as of 07/13/2020, would have been WAY easier lol
 
@@ -75,15 +78,15 @@ pdf_extraction_dir = os.path.join("pdf_extractions")
 
 input_data_dirs = [pdf_dir, text_dir, pdf_extraction_dir]
 extensions = ['.pdf', '.txt', '.json']
-save_dir = os.path.join(indico_config.DEMO_FILE_DIR, "all_valid_model")
+save_dir = os.path.join(indico_config.DEMO_FILE_DIR, MODEL_FOLDER)
 for input_data_dir, extension in zip(input_data_dirs, extensions):
+    
+    input_folder = os.path.join(indico_config.DATA_DIR, input_data_dir)
+    output_folder = os.path.join(save_dir, input_data_dir)
+    check_folder(output_folder)
+    
     for filename in demo_filenames:
         filename_ext = os.path.splitext(filename)[0] + extension
-
-        input_folder = os.path.join(indico_config.DATA_DIR, input_data_dir)    
         input_filename = os.path.join(input_folder, filename_ext)
-
-        output_folder = os.path.join(save_dir, input_data_dir)
         output_filepath = os.path.join(output_folder, filename_ext)
-
         shutil.copy(input_filename, output_filepath)
